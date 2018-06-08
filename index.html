@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Trochoid</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="HT">
+  <meta property="og:title" content="L-System" >
+  <meta property="og:url" content="https://keepcrashing.github.io/L-System/">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://raw.githubusercontent.com/keepCrashing/L-System/master/pic/GosperCurve.PNG">
+  <meta property="og:image" content="https://raw.githubusercontent.com/keepCrashing/L-System/master/pic/peano.PNG">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:description" content="SVG" >
+  <link rel="shortcut icon" href="Favicon.ico" type="image/x-icon" />
+  <link href="./css/bootstrap.min.css" rel="stylesheet">
+	<script src="./js/jquery.min.js"></script>
+  <script src="./js/popper.min.js"></script>
+	<script src="./js/bootstrap.min.js"></script>
+  
+  <script src="./js/code.js" charset="utf-8"></script>  
+  <script src="./js/Hypotrochoid.js" charset="utf-8"></script> 
+  <script src="./js/d3.v4.min.js" charset="utf-8"></script>
+	<link rel="stylesheet" href="./css/style.css">
+  <link rel="stylesheet prefetch" href="./css/bootstrap.min.css">
+    <script type="text/javascript">
+    function FileViewer(args) {
+      for (var p in args)
+        this[p] = args[p];
+      this.reader = new FileReader();
+      this.reader.onloadend = (function(self) {
+        return function() {
+              self.loaded();
+            }
+      })(this);
+    }
+    FileViewer.prototype.load = function() {
+      this.file = this.controller.files[0];
+      this.reader.readAsText(this.file);
+    }
+    FileViewer.prototype.loaded = function() {
+      console.log(this.reader.result);
+      var mydata = JSON.parse(this.reader.result);
+      this.Iterations.value = mydata.Iterations;
+      this.Angle.value = mydata.Angle;
+      this.Alphabet.value = mydata.Alphabet;
+      this.Axoim.value = mydata.Axoim;
+      
+      this.Rule1.value = mydata.Rule1;
+      this.Rule2.value = mydata.Rule2;
+      this.Rule3.value = mydata.Rule3;
+      this.Rule4.value = mydata.Rule4;
+      this.Rule5.value = mydata.Rule5;
+      this.Rule6.value = mydata.Rule6;
+      //this.PolygonAngle.value = mydata.PolygonAngle;
+      //this.colorLayer1.value = mydata.Layer1.Color;
+      //this.colorLayer2.value = mydata.Layer2.Color;
+      //this.colorLayer3.value = mydata.Layer3.Color;
+      let polygonCount = parseInt( $("#polygonCount").text(), 10 );
+      for(var i = 0; i <= polygonCount; i++){
+        removePolygon();
+      }
+      for(var i = 0; i < mydata.Polygon.length; i++){
+        addPolygon();
+        $('#PathAngle'+i)[0].value = mydata.Polygon[i].PathAngle;
+        $('#PolygonAngle'+i)[0].value = mydata.Polygon[i].PolygonAngle;
+        $('#colorLayer1-'+i)[0].value = mydata.Polygon[i].Layer1.Color;
+        $('#Thickness1-'+i)[0].value = mydata.Polygon[i].Layer1.Thickness;
+        $('#colorLayer2-'+i)[0].value = mydata.Polygon[i].Layer2.Color;
+        $('#Thickness2-'+i)[0].value = mydata.Polygon[i].Layer2.Thickness;
+        $('#colorLayer3-'+i)[0].value = mydata.Polygon[i].Layer3.Color;
+        $('#Thickness3-'+i)[0].value = mydata.Polygon[i].Layer3.Thickness;
+      }
+      exec();
+      jsonDownload(); 
+      svgDownload();
+    }
+    var file_viewer = undefined;
+    function init() {
+      file_viewer = new FileViewer(
+        {
+          controller: document.getElementById('Loadjson'),
+          
+          Iterations: document.getElementById('Iterations'),
+          Angle: document.getElementById('Angle'),
+          Alphabet: document.getElementById('Alphabet'),
+          Axoim: document.getElementById('Axoim'),
+          Rule1: document.getElementById('Rule1'),
+          Rule2: document.getElementById('Rule2'),
+          Rule3: document.getElementById('Rule3'),
+          Rule4: document.getElementById('Rule4'),
+          Rule5: document.getElementById('Rule5'),
+          Rule6: document.getElementById('Rule6'),
+          //PolygonAngle: document.getElementById('PolygonAngle'),
+          //colorLayer1: document.getElementById('colorLayer1'),
+          //colorLayer2: document.getElementById('colorLayer2'),
+          //colorLayer3: document.getElementById('colorLayer3')
+        }
+      );
+    }
+    function jsonDownload(){
+      let polygonCount = parseInt( $("#polygonCount").text(), 10 );
+      var obj = {
+          "Iterations": $('#Iterations')[0].value,
+          "Angle": $('#Angle')[0].value,
+          "Alphabet": $('#Alphabet')[0].value,
+          "Axoim": $('#Axoim')[0].value,
+          "Rule1": $('#Rule1')[0].value,
+          "Rule2": $('#Rule2')[0].value,
+          "Rule3": $('#Rule3')[0].value,
+          "Rule4": $('#Rule4')[0].value,
+          "Rule5": $('#Rule5')[0].value,
+          "Rule6": $('#Rule6')[0].value,
+          "Polygon" : []
+      };
+      for(var i = 0; i <= polygonCount; i++){
+        obj.Polygon.push({
+          "PathAngle": $('#PathAngle'+i)[0].value,
+          "PolygonAngle": $('#PolygonAngle'+i)[0].value,
+          "Layer1": {"Color": $('#colorLayer1-'+i)[0].value, "Thickness": $('#Thickness1-'+i)[0].value},
+          "Layer2": {"Color": $('#colorLayer2-'+i)[0].value, "Thickness": $('#Thickness2-'+i)[0].value},
+          "Layer3": {"Color": $('#colorLayer3-'+i)[0].value, "Thickness": $('#Thickness3-'+i)[0].value}
+        });
+      }
+      /*var obj = {
+          "Iterations": $('#Iterations')[0].value,
+          "Angle": $('#Angle')[0].value,
+          "Alphabet": $('#Alphabet')[0].value,
+          "Axoim": $('#Axoim')[0].value,
+          "Rule1": $('#Rule1')[0].value,
+          "Rule2": $('#Rule2')[0].value,
+          "Rule3": $('#Rule3')[0].value,
+          "Rule4": $('#Rule4')[0].value,
+          "Rule5": $('#Rule5')[0].value,
+          "Rule6": $('#Rule6')[0].value,
+          "PolygonAngle": $('#PolygonAngle')[0].value,
+          "Layer1": {"Color": $('#colorLayer1')[0].value},
+          "Layer2": {"Color": $('#colorLayer2')[0].value},
+          "Layer3": {"Color": $('#colorLayer3')[0].value}
+      }*/
+      var data = "text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(obj));
+      $('#jsonDownload').empty();
+      $('#jsonDownload').append(
+        $('<a>')
+          .attr('href',"data:"+data)
+          .attr('download','file.json')
+          .text('JSON')
+        );
+    }
+    function svgDownload(){
+      $('#svgdownload-div').empty();
+      $('#svgdownload-div').append(
+        $('<a>')
+            .attr('href-lang', 'image/svg+xml')
+            .attr('href', 'data:image/svg+xml;utf8,' +  unescape($('svg')[0].outerHTML))
+            .attr('download', 'file.svg')
+            .text('SVG')
+        );
+    }
+    function removePolygon(){
+      let count = $("#polygonCount").text();
+      $("#polygon-div"+count).remove();
+      subCount($("#polygonCount"));
+      if(count == "0")    document.getElementById("btnRemovePolygon").disabled = true;
+    }
+    function addPolygon(){
+      document.getElementById("btnRemovePolygon").disabled = false;
+      addCount($("#polygonCount"));
+      let count = $("#polygonCount").text();
+      $('#polygon-div')
+      .append(
+        $('<div>')
+          .attr('id', 'polygon-div'+count)
+          .append(
+            $('<div>')
+              .attr('class', 'form-group row')
+              .append(
+                $('<label>')
+                .attr('class','col-3 col-form-label')
+                .text('PathAngle')
+                )
+              .append(
+                $('<div>')
+                .attr('class', 'col-9')
+                .append(
+                    $('<input>')
+                    .attr('type','text')
+                    .attr('name','PathAngle')
+                    .attr('placeholder','PathAngle')
+                    .attr('id','PathAngle'+count)
+                )
+              )
+            )
+          .append(
+            $('<div>')
+              .attr('class', 'form-group row')
+              .append(
+                $('<label>')
+                .attr('class','col-3 col-form-label')
+                .text('PloygonAngle')
+                )
+              .append(
+                $('<div>')
+                .attr('class', 'col-9')
+                .append(
+                    $('<input>')
+                    .attr('type','text')
+                    .attr('name','PolygonAngle')
+                    .attr('placeholder','PolygonAngle')
+                    .attr('id','PolygonAngle'+count)
+                )
+              )
+            )
+          .append(
+            $('<div>')
+              .attr('class', 'form-group row')
+              .append(
+                $('<label>')
+                .attr('class','col-3 col-form-label')
+                .text('Layer1')
+                )
+              .append(
+                $('<div>')
+                .attr('class', 'col-9')
+                .append(
+                    $('<label>')
+                    .text('Color')
+                )
+                .append(
+                    $('<input>')
+                    .attr('type','color')
+                    .attr('id','colorLayer1-'+count)
+                )
+                .append(
+                    $('<label>')
+                    .text('Thickness')
+                ) 
+                .append(
+                    $('<input>')
+                    .attr('type','text')
+                    .attr('value','5')
+                    .attr('size','2')
+                    .attr('id','Thickness1-'+count)
+                )                  
+              )
+            )
+          .append(
+            $('<div>')
+              .attr('class', 'form-group row')
+              .append(
+                $('<label>')
+                .attr('class','col-3 col-form-label')
+                .text('Layer2')
+                )
+              .append(
+                $('<div>')
+                .attr('class', 'col-9')
+                .append(
+                    $('<label>')
+                    .text('Color')
+                )
+                .append(
+                    $('<input>')
+                    .attr('type','color')
+                    .attr('id','colorLayer2-'+count)
+                )
+                .append(
+                    $('<label>')
+                    .text('Thickness')
+                ) 
+                .append(
+                    $('<input>')
+                    .attr('type','text')
+                    .attr('value','5')
+                    .attr('size','2')
+                    .attr('id','Thickness2-'+count)
+                )   
+              )
+            )
+          .append(
+            $('<div>')
+              .attr('class', 'form-group row')
+              .append(
+                $('<label>')
+                .attr('class','col-3 col-form-label')
+                .text('Layer3')
+                )
+              .append(
+                $('<div>')
+                .attr('class', 'col-9')
+                .append(
+                    $('<label>')
+                    .text('Color')
+                )
+                .append(
+                    $('<input>')
+                    .attr('type','color')
+                    .attr('id','colorLayer3-'+count)
+                )
+                .append(
+                    $('<label>')
+                    .text('Thickness')
+                ) 
+                .append(
+                    $('<input>')
+                    .attr('type','text')
+                    .attr('value','5')
+                    .attr('size','2')
+                    .attr('id','Thickness3-'+count)
+                )
+              )
+            )
+        )
+    }
+    function addCount(j) {
+      var n = parseInt( j.text(), 10 );
+      j.text( n + 1 );
+    }
+    function subCount(j) {
+      var n = parseInt( j.text(), 10 );
+      j.text( n - 1 );
+    }
+    </script>
+</head>
+<body onload="init();">
+<div class="container-fluid h-100">
+   <div class="row h-100">
+    <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 col-xl-4" id ="sidebar"> 
+      <form class="wapper" enctype="multipart/form-data">          
+        <div class="form-group row">
+          <label for="Loadjson" class="col-3 col-form-label">Loadjson</label>
+          <div class="col-9">
+            <input type="file" id="Loadjson" name="Loadjson" 
+              accept=".json" style="color:#fff;" onchange="file_viewer.load();">
+          </div>
+        </div>
+        <div class="form-group row">
+          <label for="Iterations" class="col-3 col-form-label">Iterations</label>
+          <div class="col-9">
+            <input type="text" name="Iterations" id="Iterations" maxlength="2" size="2" value="1">
+          </div>
+        </div>
+        <div class="form-group row">
+          <label for="Angle" class="col-3 col-form-label">Angle</label>
+          <div class="col-9">
+            <input type="text" name="Angle" id="Angle" value="" maxlength="5" size="5" placeholder="Angle">
+          </div>
+        </div>
+        <div class="form-group row">
+          <label for="Alphabet" class="col-3 col-form-label">Alphabet</label>
+          <div class="col-9">
+            <input type="text" name="Alphabet" id="Alphabet" value="" placeholder="Alphabet">
+          </div>
+        </div>
+        <div class="form-group row">
+          <label for="Axoim" class="col-3 col-form-label">Axoim</label>
+          <div class="col-9">
+              <textarea rows="1" cols="30" id="Axoim" placeholder="Axoim"></textarea>
+          </div>
+        </div>
+          <div class="form-group row">
+            <label for="Rule1" class="col-3 col-form-label">Rule1</label>
+            <div class="col-9">
+              <textarea rows="1" cols="30" id="Rule1" placeholder="Rule1"></textarea>
+            </div>
+          </div>
+          <div class="form-group row">
+            <label for="Rule2" class="col-3 col-form-label">Rule2</label>
+            <div class="col-9">
+              <textarea rows="1" cols="30" id="Rule2" placeholder="Rule2"></textarea>
+            </div>
+          </div>
+          <div class="form-group row">
+            <label for="Rule3" class="col-3 col-form-label">Rule3</label>
+            <div class="col-9">
+              <textarea rows="1" cols="30" id="Rule3" placeholder="Rule3"></textarea>
+            </div>
+          </div>
+          <div class="form-group row">
+            <label for="Rule4" class="col-3 col-form-label">Rule4</label>
+            <div class="col-9">
+              <textarea rows="1" cols="30" id="Rule4" placeholder="Rule4"></textarea>
+            </div>
+          </div>
+          <div class="form-group row">
+            <label for="Rule5" class="col-3 col-form-label">Rule5</label>
+            <div class="col-9">
+              <textarea rows="1" cols="30" id="Rule5" placeholder="Rule5"></textarea>
+            </div>
+          </div>
+          <div class="form-group row">
+            <label for="Rule6" class="col-3 col-form-label">Rule6</label>
+            <div class="col-9">
+              <textarea rows="1" cols="30" id="Rule6" placeholder="Rule6"></textarea>
+            </div>
+          </div>
+          <div class="form-group row">
+            <label for="Ploygon" class="col-3 col-form-label" style="color: #00FF00">Ploygon</label>
+            <div class="btn-group col-9" role="group" aria-label="">
+              <button type="button" onclick = "addPolygon()" class="btn btn-info"> + </button>
+              <button type="button" id = "btnRemovePolygon" onclick = "removePolygon()" class="btn btn-info" > - </button>
+              <div><span id = "polygonCount" style="visibility: hidden;">-1</span></div>
+            </div>
+          </div>
+          <div id = "polygon-div"></div>
+          <div class="row justify-content-center">
+            <input type="button" onclick="exec(); jsonDownload(); svgDownload();" class="btn btn-primary col-8" value="Start" />
+          </div>
+      </form>          
+    </div>
+    <div class="col-xs col-sm col-md col-lg col-xl" style="overflow-x:hidden; overflow-y:hidden; ">
+      <div class="row">
+        <span style="font-size:30px;cursor:pointer" onclick="sidebarToggle()">&#9776;</span>      
+      </div>
+
+      <svg id="svg-main" width="100%" height="80%" xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" style="border:0px solid; background:rgba(255,255,255,1);"></svg>
+    </div>
+  </div>
+</div>
+<script>
+function sidebarToggle() {
+  if($('#sidebar').is(":visible")){
+    $('#sidebar').hide();
+  }else{
+    $('#sidebar').show();
+  }
+}
+function chageScaleXY(){
+  var scaleX = document.getElementById("ScaleX").value;
+  var scaleY = document.getElementById("ScaleY").value;
+  d3.selectAll("path")
+    .attr("transform","scale("+scaleX +"," + scaleY + ")");
+  d3.selectAll("polygon")
+    .attr("transform","scale("+scaleX +"," + scaleY + ")");
+  var g = document.querySelector("#gMain");
+  var obbox = g.getBBox();
+  d3.select("svg")
+  .attr("viewBox",obbox.x +","+ obbox.y +","+ obbox.width +","+ obbox.height)
+  .attr("preserveAspectRatio","xMinYMin meet");
+}
+</script>
+</body>
+</html>
