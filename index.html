@@ -19,7 +19,7 @@
 	<script src="./js/jquery.min.js"></script>
   <script src="./js/popper.min.js"></script>
 	<script src="./js/bootstrap.min.js"></script>
-  
+
   <script src="./js/code.js" charset="utf-8"></script>  
   <script src="./js/Hypotrochoid.js" charset="utf-8"></script> 
   <script src="./js/d3.v4.min.js" charset="utf-8"></script>
@@ -160,26 +160,26 @@
         );
     }
     function removePolygon(){
-      let count = $("#polygonCount").text();
-      $("#polygon-div"+count).remove();
-      subCount($("#polygonCount"));
+      let count = $("#trochoidCount").text();
+      $("#trochoid-div"+count).remove();
+      subCount($("#trochoidCount"));
       if(count == "0")    document.getElementById("btnRemovePolygon").disabled = true;
     }
     function addPolygon(){
       document.getElementById("btnRemovePolygon").disabled = false;
-      addCount($("#polygonCount"));
-      let count = $("#polygonCount").text();
-      $('#polygon-div')
+      addCount($("#trochoidCount"));
+      let count = $("#trochoidCount").text();
+      $('#trochoid-div')
       .append(
         $('<div>')
-          .attr('id', 'polygon-div'+count)
+          .attr('id', 'trochoid-div'+count)
           .append(
             $('<div>')
               .attr('class', 'form-group row')
               .append(
                 $('<label>')
                 .attr('class','col-3 col-form-label')
-                .text('PathAngle')
+                .text('fixedRadius')
                 )
               .append(
                 $('<div>')
@@ -187,9 +187,9 @@
                 .append(
                     $('<input>')
                     .attr('type','text')
-                    .attr('name','PathAngle')
-                    .attr('placeholder','PathAngle')
-                    .attr('id','PathAngle'+count)
+                    .attr('name','fixedRadius')
+                    .attr('placeholder','fixedRadius')
+                    .attr('id','fixedRadius'+count)
                 )
               )
             )
@@ -199,7 +199,7 @@
               .append(
                 $('<label>')
                 .attr('class','col-3 col-form-label')
-                .text('PloygonAngle')
+                .text('rollingRadius')
                 )
               .append(
                 $('<div>')
@@ -207,9 +207,29 @@
                 .append(
                     $('<input>')
                     .attr('type','text')
-                    .attr('name','PolygonAngle')
-                    .attr('placeholder','PolygonAngle')
-                    .attr('id','PolygonAngle'+count)
+                    .attr('name','rollingRadius')
+                    .attr('placeholder','rollingRadius')
+                    .attr('id','rollingRadius'+count)
+                )
+              )
+            )
+          .append(
+            $('<div>')
+              .attr('class', 'form-group row')
+              .append(
+                $('<label>')
+                .attr('class','col-3 col-form-label')
+                .text('distance')
+                )
+              .append(
+                $('<div>')
+                .attr('class', 'col-9')
+                .append(
+                    $('<input>')
+                    .attr('type','text')
+                    .attr('name','distance')
+                    .attr('placeholder','distance')
+                    .attr('id','distance'+count)
                 )
               )
             )
@@ -336,75 +356,15 @@
               accept=".json" style="color:#fff;" onchange="file_viewer.load();">
           </div>
         </div>
-        <div class="form-group row">
-          <label for="Iterations" class="col-3 col-form-label">Iterations</label>
-          <div class="col-9">
-            <input type="text" name="Iterations" id="Iterations" maxlength="2" size="2" value="1">
-          </div>
-        </div>
-        <div class="form-group row">
-          <label for="Angle" class="col-3 col-form-label">Angle</label>
-          <div class="col-9">
-            <input type="text" name="Angle" id="Angle" value="" maxlength="5" size="5" placeholder="Angle">
-          </div>
-        </div>
-        <div class="form-group row">
-          <label for="Alphabet" class="col-3 col-form-label">Alphabet</label>
-          <div class="col-9">
-            <input type="text" name="Alphabet" id="Alphabet" value="" placeholder="Alphabet">
-          </div>
-        </div>
-        <div class="form-group row">
-          <label for="Axoim" class="col-3 col-form-label">Axoim</label>
-          <div class="col-9">
-              <textarea rows="1" cols="30" id="Axoim" placeholder="Axoim"></textarea>
-          </div>
-        </div>
           <div class="form-group row">
-            <label for="Rule1" class="col-3 col-form-label">Rule1</label>
-            <div class="col-9">
-              <textarea rows="1" cols="30" id="Rule1" placeholder="Rule1"></textarea>
-            </div>
-          </div>
-          <div class="form-group row">
-            <label for="Rule2" class="col-3 col-form-label">Rule2</label>
-            <div class="col-9">
-              <textarea rows="1" cols="30" id="Rule2" placeholder="Rule2"></textarea>
-            </div>
-          </div>
-          <div class="form-group row">
-            <label for="Rule3" class="col-3 col-form-label">Rule3</label>
-            <div class="col-9">
-              <textarea rows="1" cols="30" id="Rule3" placeholder="Rule3"></textarea>
-            </div>
-          </div>
-          <div class="form-group row">
-            <label for="Rule4" class="col-3 col-form-label">Rule4</label>
-            <div class="col-9">
-              <textarea rows="1" cols="30" id="Rule4" placeholder="Rule4"></textarea>
-            </div>
-          </div>
-          <div class="form-group row">
-            <label for="Rule5" class="col-3 col-form-label">Rule5</label>
-            <div class="col-9">
-              <textarea rows="1" cols="30" id="Rule5" placeholder="Rule5"></textarea>
-            </div>
-          </div>
-          <div class="form-group row">
-            <label for="Rule6" class="col-3 col-form-label">Rule6</label>
-            <div class="col-9">
-              <textarea rows="1" cols="30" id="Rule6" placeholder="Rule6"></textarea>
-            </div>
-          </div>
-          <div class="form-group row">
-            <label for="Ploygon" class="col-3 col-form-label" style="color: #00FF00">Ploygon</label>
+            <label for="Trochoid" class="col-3 col-form-label" style="color: #00FF00">Trochoid</label>
             <div class="btn-group col-9" role="group" aria-label="">
               <button type="button" onclick = "addPolygon()" class="btn btn-info"> + </button>
               <button type="button" id = "btnRemovePolygon" onclick = "removePolygon()" class="btn btn-info" > - </button>
-              <div><span id = "polygonCount" style="visibility: hidden;">-1</span></div>
+              <div><span id = "trochoidCount" style="visibility: hidden;">-1</span></div>
             </div>
           </div>
-          <div id = "polygon-div"></div>
+          <div id = "trochoid-div"></div>
           <div class="row justify-content-center">
             <input type="button" onclick="exec(); jsonDownload(); svgDownload();" class="btn btn-primary col-8" value="Start" />
           </div>
@@ -426,19 +386,6 @@ function sidebarToggle() {
   }else{
     $('#sidebar').show();
   }
-}
-function chageScaleXY(){
-  var scaleX = document.getElementById("ScaleX").value;
-  var scaleY = document.getElementById("ScaleY").value;
-  d3.selectAll("path")
-    .attr("transform","scale("+scaleX +"," + scaleY + ")");
-  d3.selectAll("polygon")
-    .attr("transform","scale("+scaleX +"," + scaleY + ")");
-  var g = document.querySelector("#gMain");
-  var obbox = g.getBBox();
-  d3.select("svg")
-  .attr("viewBox",obbox.x +","+ obbox.y +","+ obbox.width +","+ obbox.height)
-  .attr("preserveAspectRatio","xMinYMin meet");
 }
 </script>
 </body>
